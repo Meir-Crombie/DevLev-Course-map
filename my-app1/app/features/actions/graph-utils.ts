@@ -66,8 +66,20 @@ export function layoutElements(
 
   // Build adjacency list and in-degree
   edges.forEach((edge) => {
+    // Ensure adjacency list entry exists for source node
+    if (!adjacencyList[edge.source]) {
+      adjacencyList[edge.source] = [];
+    }
     adjacencyList[edge.source].push(edge.target);
     inDegree[edge.target] = (inDegree[edge.target] || 0) + 1;
+    
+    // Ensure target node has entries in our data structures
+    if (!adjacencyList[edge.target]) {
+      adjacencyList[edge.target] = [];
+    }
+    if (nodeLevels[edge.target] === undefined) {
+      nodeLevels[edge.target] = 0;
+    }
   });
 
   // Find nodes with no incoming edges (roots)

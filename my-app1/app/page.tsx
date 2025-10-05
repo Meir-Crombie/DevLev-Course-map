@@ -10,6 +10,7 @@ import {
   Background,
   useReactFlow,
   ReactFlowProvider,
+  Edge,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChevronDown, ChevronUp, Upload } from 'lucide-react';
+import { ChevronDown, ChevronUp, Upload, Info } from 'lucide-react';
 import { Catalog, Course } from './features/schema/catalog-schema';
 import { buildGraph, layoutElements, hasCycle, getDependentCourses, getPrerequisiteCourses } from './features/actions/graph-utils';
 import { CourseNode } from './features/components/CourseNode';
@@ -40,12 +41,18 @@ function CourseCatalogApp() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [hasCycleError, setHasCycleError] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { fitView, zoomTo } = useReactFlow();
 
   // React Flow state
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Set mounted state to prevent hydration issues
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Build graph when catalog changes
   useEffect(() => {
@@ -55,7 +62,7 @@ function CourseCatalogApp() {
         const positionedNodes = layoutElements(graphData.nodes, graphData.edges, 'TB');
 
         // Filter visible nodes and edges based on expansion state
-        const visibleNodeIds = getVisibleNodeIds(catalog, expandedCourses);
+        const visibleNodeIds = getVisibleNodeIds(catalog, expandedCourses, graphData.edges);
         const visibleNodes = positionedNodes.filter(node => visibleNodeIds.has(node.id));
         const visibleEdges = graphData.edges.filter(edge =>
           visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target)
@@ -85,7 +92,7 @@ function CourseCatalogApp() {
   }, [catalog, expandedCourses, fitView]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Get visible node IDs based on expansion state
-  const getVisibleNodeIds = useCallback((catalog: Catalog, expanded: Set<string>) => {
+  const getVisibleNodeIds = useCallback((catalog: Catalog, expanded: Set<string>, edges: Edge[]) => {
     const visible = new Set<string>();
 
     // Add all root courses (courses with no prerequisites)
@@ -109,7 +116,7 @@ function CourseCatalogApp() {
     });
 
     return visible;
-  }, [edges]);
+  }, []);
 
   // Handle file import
   const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -343,19 +350,25 @@ function CourseCatalogApp() {
 
                 {/* React Flow */}
                 <div className="h-full">
-                  <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    nodeTypes={nodeTypes}
-                    fitView
-                    className="bg-gray-50"
-                  >
-                    <Controls />
-                    <MiniMap />
-                    <Background />
-                  </ReactFlow>
+                  {mounted ? (
+                    <ReactFlow
+                      nodes={nodes}
+                      edges={edges}
+                      onNodesChange={onNodesChange}
+                      onEdgesChange={onEdgesChange}
+                      nodeTypes={nodeTypes}
+                      fitView
+                      className="bg-gray-50"
+                    >
+                      <Controls />
+                      <MiniMap />
+                      <Background />
+                    </ReactFlow>
+                  ) : (
+                    <div className="flex items-center justify-center h-full bg-gray-50">
+                      <div className="text-gray-500">Loading course map...</div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
