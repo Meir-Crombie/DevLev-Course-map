@@ -1,0 +1,149 @@
+{
+  "courses": [
+    {
+      "id": "cs101",
+      "name": "Introduction to Computer Science",
+      "credits": 3,
+      "semester": "Fall",
+      "year": "1st Year",
+      "mandatory": true,
+      "description": "An introductory course covering fundamental concepts in computer science including algorithms, data structures, and programming principles.",
+      "notes": "This course provides the foundation for all subsequent computer science courses."
+    },
+    {
+      "id": "math101",
+      "name": "Discrete Mathematics",
+      "credits": 3,
+      "semester": "Fall",
+      "year": "1st Year",
+      "mandatory": true,
+      "description": "Introduction to discrete mathematical structures and their applications in computer science.",
+      "corequisites": ["cs101"]
+    },
+    {
+      "id": "cs201",
+      "name": "Data Structures and Algorithms",
+      "credits": 4,
+      "semester": "Spring",
+      "year": "2nd Year",
+      "mandatory": true,
+      "prerequisites": ["cs101", "math101"],
+      "description": "Comprehensive study of data structures and algorithms with emphasis on implementation and analysis.",
+      "requiredKnowledge": ["Basic programming", "Mathematical reasoning"]
+    },
+    {
+      "id": "cs301",
+      "name": "Database Systems",
+      "credits": 3,
+      "semester": "Fall",
+      "year": "3rd Year",
+      "mandatory": true,
+      "prerequisites": ["cs201"],
+      "description": "Introduction to database design, SQL, and database management systems.",
+      "corequisites": ["cs201"]
+    },
+    {
+      "id": "cs401",
+      "name": "Software Engineering",
+      "credits": 4,
+      "semester": "Spring",
+      "year": "4th Year",
+      "mandatory": true,
+      "prerequisites": ["cs201"],
+      "description": "Principles and practices of software engineering including design patterns, testing, and project management.",
+      "requiredKnowledge": ["Object-oriented programming", "Version control"]
+    },
+    {
+      "id": "cs451",
+      "name": "Machine Learning",
+      "credits": 3,
+      "semester": "Fall",
+      "year": "4th Year",
+      "mandatory": false,
+      "prerequisites": ["cs201", "math201"],
+      "description": "Introduction to machine learning algorithms, techniques, and applications.",
+      "requiredKnowledge": ["Statistics", "Linear algebra"]
+    },
+    {
+      "id": "math201",
+      "name": "Linear Algebra",
+      "credits": 3,
+      "semester": "Spring",
+      "year": "2nd Year",
+      "mandatory": true,
+      "prerequisites": ["math101"],
+      "description": "Study of vector spaces, linear transformations, and their applications.",
+      "corequisites": ["math101"]
+    },
+    {
+      "id": "cs251",
+      "name": "Computer Networks",
+      "credits": 3,
+      "semester": "Fall",
+      "year": "3rd Year",
+      "mandatory": false,
+      "prerequisites": ["cs201"],
+      "description": "Fundamentals of computer networking including protocols, architecture, and security.",
+      "requiredKnowledge": ["Basic computer science concepts"]
+    },
+    {
+      "id": "cs351",
+      "name": "Web Development",
+      "credits": 3,
+      "semester": "Spring",
+      "year": "3rd Year",
+      "mandatory": false,
+      "prerequisites": ["cs201"],
+      "description": "Modern web development technologies and frameworks for building interactive applications.",
+      "requiredKnowledge": ["HTML", "CSS", "JavaScript"]
+    },
+    {
+      "id": "cs501",
+      "name": "Capstone Project",
+      "credits": 6,
+      "semester": "Spring",
+      "year": "4th Year",
+      "mandatory": true,
+      "prerequisites": ["cs301", "cs401"],
+      "description": "Culminating project demonstrating mastery of computer science concepts through a significant software development project.",
+      "notes": "Requires approval from faculty advisor. Must be completed in the final semester."
+    }
+  ],
+  "requirements": [
+    {
+      "title": "Core Computer Science Requirements",
+      "type": "allOf",
+      "groups": [
+        {
+          "title": "Foundation Courses",
+          "courses": ["cs101", "math101", "cs201"]
+        },
+        {
+          "title": "Advanced Courses",
+          "courses": ["cs301", "cs401", "cs501"]
+        }
+      ]
+    },
+    {
+      "title": "Elective Requirements",
+      "type": "nOf",
+      "groups": [
+        {
+          "title": "Technical Electives",
+          "n": 2,
+          "courses": ["cs251", "cs351", "cs451"]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "lastUpdated": "2024-01-15",
+    "department": "Computer Science",
+    "totalCourses": 10,
+    "notes": [
+      "Prerequisites must be completed before taking advanced courses",
+      "Some courses have recommended corequisites",
+      "Capstone project requires faculty approval"
+    ]
+  }
+}
