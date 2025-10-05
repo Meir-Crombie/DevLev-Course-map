@@ -52,14 +52,16 @@ export function layoutElements(
   edges: Edge[],
   direction: 'TB' | 'LR' = 'TB'
 ): Node[] {
-  // Kahn's algorithm for topological sorting
+  // Kahn's algorithm for topological sorting with proper level assignment
   const adjacencyList: Record<string, string[]> = {};
   const inDegree: Record<string, number> = {};
+  const nodeLevels: Record<string, number> = {};
 
   // Initialize
   nodes.forEach((node) => {
     adjacencyList[node.id] = [];
     inDegree[node.id] = 0;
+    nodeLevels[node.id] = 0; // Default level
   });
 
   // Build adjacency list and in-degree
@@ -73,31 +75,32 @@ export function layoutElements(
   Object.keys(inDegree).forEach((nodeId) => {
     if (inDegree[nodeId] === 0) {
       queue.push(nodeId);
+      nodeLevels[nodeId] = 0; // Root nodes are at level 0
     }
   });
 
-  const levels: string[][] = [];
   const visited = new Set<string>();
+  let currentLevel = 0;
 
   while (queue.length > 0) {
     const levelSize = queue.length;
-    const currentLevel: string[] = [];
+    currentLevel++;
 
     for (let i = 0; i < levelSize; i++) {
       const nodeId = queue.shift()!;
-      currentLevel.push(nodeId);
       visited.add(nodeId);
 
       // Process neighbors
       adjacencyList[nodeId].forEach((neighborId) => {
+        // Update the level of the neighbor (max of current level)
+        nodeLevels[neighborId] = Math.max(nodeLevels[neighborId], currentLevel);
+
         inDegree[neighborId]--;
         if (inDegree[neighborId] === 0) {
           queue.push(neighborId);
         }
       });
     }
-
-    levels.push(currentLevel);
   }
 
   // Check for cycles
@@ -105,24 +108,34 @@ export function layoutElements(
     throw new Error('Cycle detected in prerequisite graph');
   }
 
+  // Count nodes per level for positioning
+  const levelCounts: Record<number, number> = {};
+  Object.values(nodeLevels).forEach(level => {
+    levelCounts[level] = (levelCounts[level] || 0) + 1;
+  });
+
   // Calculate positions
   const nodeWidth = 240;
   const nodeHeight = 84;
   const horizontalGap = 40;
   const verticalGap = 80;
 
+  // Track position within each level
+  const levelPositions: Record<number, number> = {};
+
   const positionedNodes = nodes.map((node) => {
-    const levelIndex = levels.findIndex((level) => level.includes(node.id));
-    const nodeIndexInLevel = levels[levelIndex]?.indexOf(node.id) || 0;
+    const level = nodeLevels[node.id] || 0;
+    const positionInLevel = levelPositions[level] || 0;
+    levelPositions[level] = positionInLevel + 1;
 
     let x: number, y: number;
 
     if (direction === 'TB') {
-      x = nodeIndexInLevel * (nodeWidth + horizontalGap);
-      y = levelIndex * (nodeHeight + verticalGap);
+      x = positionInLevel * (nodeWidth + horizontalGap);
+      y = level * (nodeHeight + verticalGap);
     } else {
-      x = levelIndex * (nodeWidth + horizontalGap);
-      y = nodeIndexInLevel * (nodeHeight + verticalGap);
+      x = level * (nodeWidth + horizontalGap);
+      y = positionInLevel * (nodeHeight + verticalGap);
     }
 
     return {
